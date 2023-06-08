@@ -111,11 +111,21 @@ jobs:
           cd ${{ github.workspace }}
           mkdir temp
           find . -name "*.yml" -exec mv {} temp/ \;
+        working-directory: ${{ github.workspace }}
+      
+      - name: Clone Target Repository
+        run: |
           git clone "https://naveenmunagaim:${{ secrets.GH_ACCESS_TOKEN }}@github.com/im-sandbox-NaveenMunaga/actions-importer.git" cloned-repo
+        working-directory: ${{ github.workspace }}
+        
+      - name: Move Files to Cloned Repository
+        run: |
           cd ${{ github.workspace }}/temp
-          echo "helloooooo"
-          ls
           mv * ../cloned-repo/.github/workflows/
+      
+      - name: Commit and Push Changes
+        id: commit
+        run: |
           cd cloned-repo
           branch_name="audit-$(date +'%Y%m%d%H%M%S')"
           git checkout -b $branch_name
@@ -135,6 +145,7 @@ jobs:
           body: 'This pull request moves the .yml files to the .github/workflows directory.'
           branch: ${{ steps.commit.outputs.branch }}
           base: main
+          repository: im-sandbox-NaveenMunaga/actions-importer
             
       - uses: actions/github-script@v6
         with:
@@ -144,16 +155,12 @@ jobs:
             const MAX_LENGTH = 64000
             const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.GITHUB_RUN_ID}`
             const body = `Audit successfully completed :rocket:
-
             Download full results [here](${artifactUrl})
-
             <details>
               <summary>Audit summary :point_down:</summary>
-
               \`\`\`
               ${summaryText.substring(0, Math.min(summaryText.length, MAX_LENGTH))}
               \`\`\`
-
             </details>
             `
             await github.rest.issues.createComment({
@@ -179,7 +186,6 @@ jobs:
             const globber = await glob.create(`${directory}**/*.yml`)
             const MAX_LENGTH = 64000
             let currentLength = 0
-
             const workflows = []
             for await (const file of globber.globGenerator()) {
               const content = fs.readFileSync(file, 'utf8')
@@ -193,22 +199,16 @@ jobs:
                 "</details>",
                 ""
               ]
-
               for (const element of data) {
                 currentLength += element.length;
               }
-
               if (currentLength > MAX_LENGTH){
                 break
               }
-
               workflows.push(...data)
             }
-
             const body = `Dry run was successful :boom:
-
             Transformed workflows:
-
             ${workflows.join("\n")}
             `
             await github.rest.issues.createComment({
@@ -217,7 +217,6 @@ jobs:
               repo: context.repo.repo,
               body
             })
-
   migrate:
     runs-on: ubuntu-latest
     if: needs.execute-actions-importer.outputs.command == 'migrate'
@@ -240,7 +239,6 @@ jobs:
         with:
           script: |
             const body = `Migration was successful :sparkles:
-
             Continue to the [pull request](${process.env.PULL_REQUEST_URL}) to complete the migration.
             `
             try {
@@ -253,7 +251,6 @@ jobs:
             } catch(e) {
               console.log(e)
             }
-
   cleanup:
     runs-on: ubuntu-latest
     needs: [execute-actions-importer, audit, migrate, dry-run]
@@ -271,10 +268,8 @@ jobs:
             const MAX_LENGTH = 64000
             const logData = fs.readFileSync("${{ needs.execute-actions-importer.outputs.log-filename }}", "utf8")
             const body = `Something went wrong. Please check the logs for more information.
-
             <details>
               <summary>Logs :point_down:</summary>
-
               \`\`\`
               ${logData.substring(0, Math.min(logData.length, MAX_LENGTH))}
               \`\`\`
