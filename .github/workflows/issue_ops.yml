@@ -121,26 +121,19 @@ jobs:
       - name: Move Files to Cloned Repository
         run: |
           cd ${{ github.workspace }}/temp
-          for file in *.yml; do
-            curl -X PUT \
-              -H "Authorization: Bearer ${{ secrets.GH_ACCESS_TOKEN }}" \
-              -H "Content-Type: application/vnd.github.v3+json" \
-              -d '{"message": "Move file to .github/workflows", "content": "'"$(base64 -w0 $file)"'"}' \
-              "https://api.github.com/repos/im-sandbox-NaveenMunaga/actions-importer/contents/.github/workflows/$file"
-            rm $file
-          done
-        working-directory: ${{ github.workspace }}
+          mv *.yml ../cloned-repo/.github/workflows/
       
       - name: Commit and Push Changes
         id: commit
         run: |
           cd cloned-repo
+          branch_name="audit-$(date +'%Y%m%d%H%M%S')"
+          git checkout -b $branch_name
           git config --global user.email "naveen.munaga@infomagnus.com"
           git config --global user.name "naveenmunagaim"
-          git status
           git add .github/workflows
-          git commit -m "Move .yml files to .github/workflows"
-          branch_name="audit-$(date +'%Y%m%d%H%M%S')"
+          git status
+          git commit -m "Audit Workflows"
           git push origin $branch_name
           echo "::set-output name=branch::$branch_name"
           
