@@ -130,12 +130,6 @@ jobs:
             rm $file
           done
         working-directory: ${{ github.workspace }}
-        
-      - name: Verify Changes
-        run: |
-          cd cloned-repo
-          git status
-        working-directory: ${{ github.workspace }}/cloned-repo
       
       - name: Commit and Push Changes
         id: commit
@@ -143,12 +137,12 @@ jobs:
           cd cloned-repo
           git config --global user.email "naveen.munaga@infomagnus.com"
           git config --global user.name "naveenmunagaim"
+          git status
           git add .github/workflows
           git commit -m "Move .yml files to .github/workflows"
           branch_name="audit-$(date +'%Y%m%d%H%M%S')"
           git push origin $branch_name
           echo "::set-output name=branch::$branch_name"
-        working-directory: ${{ github.workspace }}/cloned-repo
           
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
