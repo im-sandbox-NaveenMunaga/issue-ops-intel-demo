@@ -108,7 +108,7 @@ jobs:
           
       - name: Copy .yml Files and Create PRs
         run: |
-          cd output
+          cd ${{ github.workspace }}/output
           for dir in */; do
             if ls $dir*.yml 1>/dev/null 2>&1; then
               cd ..
