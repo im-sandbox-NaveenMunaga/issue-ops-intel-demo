@@ -115,7 +115,7 @@ jobs:
       
       - name: Clone Target Repository
         run: |
-          git clone https://github.com/im-sandbox-NaveenMunaga/action-workflow-test.git cloned-repo
+          git clone "https://naveenmunagaim:${{ secrets.GH_ACCESS_TOKEN }}@github.com/im-sandbox-NaveenMunaga/action-workflow-test.git" cloned-repo
         working-directory: ${{ github.workspace }}
         
       - name: Move Files to Cloned Repository
