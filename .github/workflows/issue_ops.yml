@@ -113,15 +113,16 @@ jobs:
             echo "Processing file: $file"
             git clone "https://naveenmunagaim:${{ secrets.GH_ACCESS_TOKEN }}@github.com/im-sandbox-NaveenMunaga/action-workflow-test.git"
             cd action-workflow-test
-            mkdir -p .github/workflows
-            mv "$file" ".github/workflows/"
+            ls
+            # mkdir -p .github/workflows
+            mv $file .github/workflows/
             git status
             git config --global user.email "naveen.munaga@infomagnus.com"
             git config --global user.name "naveenmunagaim"
             git add .
             git commit -m "Add $file"
             git push origin main
-            gh pr create --title "Add $file" --body "This pull request adds $file" --base destination-branch --head destination:new-pr-branch
+            gh pr create --title "Add $file" --body "This pull request adds $file"
           done
             
       - uses: actions/github-script@v6
