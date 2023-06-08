@@ -134,7 +134,6 @@ jobs:
       - name: Commit and Push Changes
         id: commit
         run: |
-          cd cloned-repo
           git config --global user.email "naveen.munaga@infomagnus.com"
           git config --global user.name "naveenmunagaim"
           git status
