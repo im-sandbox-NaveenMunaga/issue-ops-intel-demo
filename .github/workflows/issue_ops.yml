@@ -115,7 +115,7 @@ jobs:
       
       - name: Clone Target Repository
         run: |
-          git clone "https://naveenmunagaim:${{ secrets.GH_ACCESS_TOKEN }}@github.com/im-sandbox-NaveenMunaga/actions-importer.git" cloned-repo
+          git clone "https://${{ github.actor }}:${{ secrets.GH_ACCESS_TOKEN }}@github.com/im-sandbox-NaveenMunaga/actions-importer.git" cloned-repo
         working-directory: ${{ github.workspace }}
         
       - name: Move Files to Cloned Repository
@@ -137,9 +137,9 @@ jobs:
         run: |
           cd cloned-repo
           branch_name="audit-$(date +'%Y%m%d%H%M%S')"
-          git checkout -b $branch_name
-          git config --global user.email "naveen.munaga@infomagnus.com"
-          git config --global user.name "naveenmunagaim"
+          git checkout -b $branch_name"
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git add .github/workflows
           git status
           git commit -m "Audit Workflows"
