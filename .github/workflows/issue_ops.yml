@@ -130,15 +130,25 @@ jobs:
             rm $file
           done
         working-directory: ${{ github.workspace }}
+        
+      - name: Verify Changes
+        run: |
+          cd cloned-repo
+          git status
+        working-directory: ${{ github.workspace }}/cloned-repo
       
       - name: Commit and Push Changes
+        id: commit
         run: |
           cd cloned-repo
           git config --global user.email "naveen.munaga@infomagnus.com"
           git config --global user.name "naveenmunagaim"
-          git add .
+          git add .github/workflows
           git commit -m "Move .yml files to .github/workflows"
-          git push origin audit-test  # Replace with your desired branch name
+          branch_name="audit-$(date +'%Y%m%d%H%M%S')"
+          git push origin $branch_name
+          echo "::set-output name=branch::$branch_name"
+        working-directory: ${{ github.workspace }}/cloned-repo
           
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
@@ -146,8 +156,8 @@ jobs:
           token: ${{ secrets.GH_ACCESS_TOKEN }}
           title: 'Move .yml files to .github/workflows'
           body: 'This pull request moves the .yml files to the .github/workflows directory.'
-          branch: audit-test  # Replace with your desired branch name
-          base: main  # Replace with the target branch name of the target repository
+          branch: ${{ steps.commit.outputs.branch }}
+          base: main
           repository: im-sandbox-NaveenMunaga/action-workflow-test
             
       - uses: actions/github-script@v6
