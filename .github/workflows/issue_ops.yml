@@ -116,14 +116,12 @@ jobs:
           cd ${{ github.workspace }}
           for file in $(find . -name "*.yml"); do
             echo "Processing file: $file"
-            cp "$file" "https://github.com/im-sandbox-NaveenMunaga/action-workflow-test/tree/main/.github/workflows"
-            cd "https://github.com/im-sandbox-NaveenMunaga/action-workflow-test/"
+            git clone "https://naveenmunagaim:${{ secrets.GH_ACCESS_TOKEN }}@github.com/im-sandbox-NaveenMunaga/action-workflow-test.git"
+            cd action-workflow-test/.github/workflows
             git checkout -b new-pr-branch
             git add .
             git commit -m "Add $file"
-            git push -u origin new-pr-branch
-            gh pr create --title "Add $file" --body "This pull request adds $file" --base destination-branch
-            cd ..
+            gh pr create --title "Add $file" --body "This pull request adds $file" --base destination-branch --head destination:new-pr-branch
           done
             
       - uses: actions/github-script@v6
