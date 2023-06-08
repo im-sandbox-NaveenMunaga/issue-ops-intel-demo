@@ -98,6 +98,8 @@ jobs:
 
   audit:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
     if: needs.execute-actions-importer.outputs.command == 'audit'
     needs: execute-actions-importer
     steps:
