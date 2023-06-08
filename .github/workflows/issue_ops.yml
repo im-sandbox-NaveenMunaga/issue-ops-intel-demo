@@ -118,7 +118,7 @@ jobs:
             echo "Processing file: $file"
             git clone "https://naveenmunagaim:${{ secrets.GH_ACCESS_TOKEN }}@github.com/im-sandbox-NaveenMunaga/action-workflow-test.git"
             cd action-workflow-test
-            mv "$file" .github/workflows/
+            mv "$file" ".github/workflows/"
             git checkout -b new-pr-branch
             git add .
             git commit -m "Add $file"
