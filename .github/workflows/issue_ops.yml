@@ -124,7 +124,6 @@ jobs:
           mv * ../cloned-repo/.github/workflows/
       
       - name: Commit and Push Changes
-        id: commit
         run: |
           cd cloned-repo
           branch_name="audit-$(date +'%Y%m%d%H%M%S')"
@@ -135,18 +134,8 @@ jobs:
           git status
           git commit -m "Audit Workflows"
           git push origin $branch_name
-          echo "::set-output name=branch::$branch_name"
+          gh pr create --title "Pull Request" --body "body" --head $branch_name --base main
           
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v3
-        with:
-          token: ${{ secrets.GH_ACCESS_TOKEN }}
-          title: 'Move .yml files to .github/workflows'
-          body: 'This pull request moves the .yml files to the .github/workflows directory.'
-          branch: ${{ steps.commit.outputs.branch }}
-          base: main
-          repository: im-sandbox-NaveenMunaga/actions-importer
-            
       - uses: actions/github-script@v6
         with:
           script: |
