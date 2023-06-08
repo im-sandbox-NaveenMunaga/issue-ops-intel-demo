@@ -106,17 +106,49 @@ jobs:
         with:
           name: output
           
-      - name: Copy .yml Files and Create PRs
+      - name: Copy .yml Files
         run: |
           cd ${{ github.workspace }}
           mkdir temp
-          for file in $(find . -name "*.yml"); do
-            echo "Processing file: $file"
-            mv "$file" ../temp
+          find . -name "*.yml" -exec mv {} temp/ \;
+        working-directory: ${{ github.workspace }}
+      
+      - name: Clone Target Repository
+        run: |
+          git clone https://github.com/im-sandbox-NaveenMunaga/action-workflow-test.git cloned-repo
+        working-directory: ${{ github.workspace }}
+        
+      - name: Move Files to Cloned Repository
+        run: |
+          cd ${{ github.workspace }}/temp
+          for file in *.yml; do
+            curl -X PUT \
+              -H "Authorization: Bearer ${{ secrets.GH_ACCESS_TOKEN }}" \
+              -H "Content-Type: application/vnd.github.v3+json" \
+              -d '{"message": "Move file to .github/workflows", "content": "'"$(base64 -w0 $file)"'"}' \
+              "https://api.github.com/repos/im-sandbox-NaveenMunaga/action-workflow-test/contents/.github/workflows/$file"
+            rm $file
           done
-          cd temp
-          ls
+        working-directory: ${{ github.workspace }}
+      
+      - name: Commit and Push Changes
+        run: |
+          cd cloned-repo
+          git config --global user.email "naveen.munaga@infomagnus.com"
+          git config --global user.name "naveenmunagaim"
+          git add .
+          git commit -m "Move .yml files to .github/workflows"
+          git push origin audit-test  # Replace with your desired branch name
           
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GH_ACCESS_TOKEN }}
+          title: 'Move .yml files to .github/workflows'
+          body: 'This pull request moves the .yml files to the .github/workflows directory.'
+          branch: audit-test  # Replace with your desired branch name
+          base: main  # Replace with the target branch name of the target repository
+          repository: im-sandbox-NaveenMunaga/action-workflow-test
             
       - uses: actions/github-script@v6
         with:
