@@ -106,15 +106,26 @@ jobs:
         with:
           name: output
           
+      - name: Set up Git
+        run: |
+          git config --global user.email "naveen.munaga@infomagnus.com"
+          git config --global user.name "naveenmunagaim"
+
       - name: Copy .yml Files and Create PRs
-        id: create_prs
         run: |
           cd ${{ github.workspace }}
           for file in $(find . -name "*.yml"); do
             echo "Processing file: $file"
+            cp "$file" "https://github.com/im-sandbox-NaveenMunaga/action-workflow-test/tree/main/.github/workflows"
+            cd "https://github.com/im-sandbox-NaveenMunaga/action-workflow-test/"
+            git checkout -b new-pr-branch
+            git add .
+            git commit -m "Add $file"
+            git push -u origin new-pr-branch
+            gh pr create --title "Add $file" --body "This pull request adds $file" --base destination-branch
+            cd ..
           done
             
-          
       - uses: actions/github-script@v6
         with:
           script: |
