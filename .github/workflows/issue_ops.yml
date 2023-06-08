@@ -98,6 +98,8 @@ jobs:
 
   audit:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
     if: needs.execute-actions-importer.outputs.command == 'audit'
     needs: execute-actions-importer
     steps:
@@ -122,6 +124,16 @@ jobs:
         run: |
           cd ${{ github.workspace }}/temp
           mv * ../cloned-repo/.github/workflows/
+          
+      - name: Set up GitHub CLI
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+        env:
+          GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+      - name: Install GitHub CLI
+        run: |
+          npm install -g github-cli    
       
       - name: Commit and Push Changes
         run: |
