@@ -115,7 +115,7 @@ jobs:
       
       - name: Clone Target Repository
         run: |
-          git clone "https://naveenmunagaim:${{ secrets.GH_ACCESS_TOKEN }}@github.com/im-sandbox-NaveenMunaga/action-workflow-test.git" cloned-repo
+          git clone "https://naveenmunagaim:${{ secrets.GH_ACCESS_TOKEN }}@github.com/im-sandbox-NaveenMunaga/actions-importer.git" cloned-repo
         working-directory: ${{ github.workspace }}
         
       - name: Move Files to Cloned Repository
@@ -126,7 +126,7 @@ jobs:
               -H "Authorization: Bearer ${{ secrets.GH_ACCESS_TOKEN }}" \
               -H "Content-Type: application/vnd.github.v3+json" \
               -d '{"message": "Move file to .github/workflows", "content": "'"$(base64 -w0 $file)"'"}' \
-              "https://api.github.com/repos/im-sandbox-NaveenMunaga/action-workflow-test/contents/.github/workflows/$file"
+              "https://api.github.com/repos/im-sandbox-NaveenMunaga/actions-importer/contents/.github/workflows/$file"
             rm $file
           done
         working-directory: ${{ github.workspace }}
@@ -152,7 +152,7 @@ jobs:
           body: 'This pull request moves the .yml files to the .github/workflows directory.'
           branch: ${{ steps.commit.outputs.branch }}
           base: main
-          repository: im-sandbox-NaveenMunaga/action-workflow-test
+          repository: im-sandbox-NaveenMunaga/actions-importer
             
       - uses: actions/github-script@v6
         with:
