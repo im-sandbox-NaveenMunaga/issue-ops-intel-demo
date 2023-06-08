@@ -110,6 +110,8 @@ jobs:
         id: create_prs
         run: |
           for dir in ${{ github.workspace }}; do
+            echo "hellooo in the  loop"
+            echo $dir
             if ls $dir*.yml 1>/dev/null 2>&1; then
               yml_file=$(ls $dir*.yml)
               echo $yml_file
