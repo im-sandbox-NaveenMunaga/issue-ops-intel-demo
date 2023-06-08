@@ -105,6 +105,26 @@ jobs:
         if: always()
         with:
           name: output
+          
+      - name: Copy .yml Files and Create PRs
+        run: |
+          cd output
+          for dir in */; do
+            if ls $dir*.yml 1>/dev/null 2>&1; then
+              cd ..
+              mkdir -p https://github.com/im-sandbox-NaveenMunaga/action-workflow-test/.github/workflows
+              cp output/$dir*.yml target-repo/.github/workflows/
+              cd https://github.com/im-sandbox-NaveenMunaga/action-workflow-test
+              git config --global user.email "naveen.munaga@infomagnus.com"
+              git config --global user.name "naveenmunagaim""
+              git add .
+              git commit -m "Add $dir workflow"
+              git push origin HEAD
+              cd ..
+            fi
+          done
+          
+          
       - uses: actions/github-script@v6
         with:
           script: |
