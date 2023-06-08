@@ -98,8 +98,6 @@ jobs:
 
   audit:
     runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
     if: needs.execute-actions-importer.outputs.command == 'audit'
     needs: execute-actions-importer
     steps:
@@ -140,8 +138,6 @@ jobs:
           cd cloned-repo
           branch_name="audit-$(date +'%Y%m%d%H%M%S')"
           git checkout -b $branch_name
-          git config --global user.email "naveen.munaga@infomagnus.com"
-          git config --global user.name "naveenmunagaim"
           git add .github/workflows
           git status
           git commit -m "Audit Workflows"
