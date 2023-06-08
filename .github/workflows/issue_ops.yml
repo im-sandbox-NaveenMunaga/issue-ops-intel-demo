@@ -138,6 +138,8 @@ jobs:
           cd cloned-repo
           branch_name="audit-$(date +'%Y%m%d%H%M%S')"
           git checkout -b $branch_name
+          git config --global user.email "naveen.munaga@infomagnus.com"
+          git config --global user.name "naveenmunagaim"
           git add .github/workflows
           git status
           git commit -m "Audit Workflows"
