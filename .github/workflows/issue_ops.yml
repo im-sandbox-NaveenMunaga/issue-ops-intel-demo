@@ -111,21 +111,11 @@ jobs:
           cd ${{ github.workspace }}
           mkdir temp
           find . -name "*.yml" -exec mv {} temp/ \;
-        working-directory: ${{ github.workspace }}
-      
-      - name: Clone Target Repository
-        run: |
           git clone "https://naveenmunagaim:${{ secrets.GH_ACCESS_TOKEN }}@github.com/im-sandbox-NaveenMunaga/actions-importer.git" cloned-repo
-        working-directory: ${{ github.workspace }}
-        
-      - name: Move Files to Cloned Repository
-        run: |
           cd ${{ github.workspace }}/temp
-          mv *.yml ../cloned-repo/.github/workflows/
-      
-      - name: Commit and Push Changes
-        id: commit
-        run: |
+          echo "helloooooo"
+          ls
+          mv * ../cloned-repo/.github/workflows/
           cd cloned-repo
           branch_name="audit-$(date +'%Y%m%d%H%M%S')"
           git checkout -b $branch_name
@@ -145,7 +135,6 @@ jobs:
           body: 'This pull request moves the .yml files to the .github/workflows directory.'
           branch: ${{ steps.commit.outputs.branch }}
           base: main
-          repository: im-sandbox-NaveenMunaga/actions-importer
             
       - uses: actions/github-script@v6
         with:
