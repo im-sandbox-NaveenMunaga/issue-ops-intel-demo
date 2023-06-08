@@ -99,7 +99,7 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+      GH_TOKEN: ${{ env.GITHUB_ACCESS_TOKEN }}
     if: needs.execute-actions-importer.outputs.command == 'audit'
     needs: execute-actions-importer
     steps:
@@ -107,46 +107,6 @@ jobs:
         if: always()
         with:
           name: output
-          
-      - name: Copy .yml Files
-        run: |
-          cd ${{ github.workspace }}
-          mkdir temp
-          find . -name "*.yml" -exec mv {} temp/ \;
-        working-directory: ${{ github.workspace }}
-      
-      - name: Clone Target Repository
-        run: |
-          git clone "https://${{ github.actor }}:${{ secrets.GH_ACCESS_TOKEN }}@github.com/im-sandbox-NaveenMunaga/actions-importer.git" cloned-repo
-        working-directory: ${{ github.workspace }}
-        
-      - name: Move Files to Cloned Repository
-        run: |
-          cd ${{ github.workspace }}/temp
-          mv * ../cloned-repo/.github/workflows/
-          
-      - name: Set up GitHub CLI
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-        env:
-          GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-      - name: Install GitHub CLI
-        run: |
-          npm install -g github-cli    
-      
-      - name: Commit and Push Changes
-        run: |
-          cd cloned-repo
-          branch_name="audit-$(date +'%Y%m%d%H%M%S')"
-          git checkout -b $branch_name
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          git add .github/workflows
-          git status
-          git commit -m "Audit Workflows"
-          git push origin $branch_name
-          gh pr create --title "Pull Request" --body "body" --head $branch_name --base main
           
       - uses: actions/github-script@v6
         with:
@@ -170,6 +130,57 @@ jobs:
               repo: context.repo.repo,
               body
             })
+          
+      - name: Copy .yml Files
+        run: |
+          cd ${{ github.workspace }}
+          mkdir temp
+          find . -name "*.yml" -exec mv {} temp/ \;
+        working-directory: ${{ github.workspace }}
+      
+      - name: Clone Target Repository
+        run: |
+          git clone "https://${{ github.actor }}:${{ secrets.GH_ACCESS_TOKEN }}@github.com/${{ vars.PULL_REQUEST_REPO }}.git" cloned-repo
+        working-directory: ${{ github.workspace }}
+        
+      - name: Move Files to Cloned Repository
+        run: |
+          cd ${{ github.workspace }}/temp
+          mv * ../cloned-repo/.github/workflows/
+          
+      - name: Set up GitHub CLI
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+        env:
+          GH_TOKEN: ${{ env.GITHUB_ACCESS_TOKEN }}
+      - name: Install GitHub CLI
+        run: |
+          npm install -g github-cli    
+      
+      - name: Commit and Push Changes
+        run: |
+          cd cloned-repo
+          branch_name="audit-$(date +'%Y%m%d%H%M%S')"
+          git checkout -b $branch_name
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git add .github/workflows
+          git status
+          git commit -m "Audit Workflows"
+          git push origin $branch_name
+          gh pr create --title "Convert Piplines to GitHub Actions" --body "Audit" --head $branch_name --base main
+          
+      - name: Update old variables in pull requests to new variables.
+        shell: bash
+        env:
+          GH_TOKEN: ${{ env.GITHUB_ACCESS_TOKEN }}
+          PULL_REQUEST_REPO: ${{ vars.PULL_REQUEST_REPO }}
+        run: |
+          pip install pygithub==1.58.1
+          python replace_variables_in_pull_requests.py
+          
+
   dry-run:
     runs-on: ubuntu-latest
     if: needs.execute-actions-importer.outputs.command == 'dry-run'
