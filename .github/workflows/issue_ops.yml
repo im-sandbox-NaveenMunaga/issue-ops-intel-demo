@@ -115,7 +115,7 @@ jobs:
             cd action-workflow-test
             ls
             # mkdir -p .github/workflows
-            mv $file .github/workflows/
+            mv $file tree/main/.github/workflows
             git status
             git config --global user.email "naveen.munaga@infomagnus.com"
             git config --global user.name "naveenmunagaim"
