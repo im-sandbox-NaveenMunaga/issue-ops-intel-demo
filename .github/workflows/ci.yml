@@ -1,10 +1,7 @@
 name: ci
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-
+  workflow_dispatch:
 env:
   ruby_version: 2.7.1
   # ImageOs must be configured to match the OS of the runner when using self-hosted runners.
