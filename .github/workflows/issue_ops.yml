@@ -99,7 +99,7 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+      GH_TOKEN: ${{ env.GITHUB_ACCESS_TOKEN }}
     if: needs.execute-actions-importer.outputs.command == 'audit'
     needs: execute-actions-importer
     steps:
@@ -153,7 +153,7 @@ jobs:
         with:
           node-version: '14'
         env:
-          GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+          GH_TOKEN: ${{ env.GITHUB_ACCESS_TOKEN }}
       - name: Install GitHub CLI
         run: |
           npm install -g github-cli    
@@ -170,15 +170,6 @@ jobs:
           git commit -m "Audit Workflows"
           git push origin $branch_name
           gh pr create --title "Convert Piplines to GitHub Actions" --body "Audit" --head $branch_name --base main
-          
-      - name: Update old variables in pull requests to new variables.
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-          PULL_REQUEST_REPO: ${{ vars.PULL_REQUEST_REPO }}
-        run: |
-          pip install pygithub==1.58.1
-          python replace_variables_in_pull_requests.py
           
 
   dry-run:
