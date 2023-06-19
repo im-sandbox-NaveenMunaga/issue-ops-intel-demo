@@ -241,10 +241,13 @@ jobs:
       - id: pull-request-url
         run: |
           pullRequest=$(grep "${{ env.pullRequestPattern }}" ${{ needs.execute-actions-importer.outputs.log-filename }} | sed -rn "s/^.*${{ env.pullRequestPattern }}'(.+)'.*$/\1/p")
-          echo $pullRequest
           echo "output=$pullRequest" >> $GITHUB_OUTPUT
+          PULL_REQUEST_REPO=$(echo $pullRequest | sed -n 's|^https://github.com/\([^/]\+\)/\([^/]\+\)/pull/.*|\1/\2|p')
+          PULL_REQUEST_NUMBER=$(echo $pullRequest | awk -F'/' '{print $NF}')
+          echo "PULL_REQUEST_REPO=$PULL_REQUEST_REPO" >> $GITHUB_ENV
+          echo "PULL_REQUEST_NUMBER=$PULL_REQUEST_NUMBER" >> $GITHUB_ENV
         env:
-          pullRequestPattern: "Pull request: "
+          pullRequestPattern: "Pull request: "    
       - uses: actions/github-script@v6
         env:
           PULL_REQUEST_URL: "${{ steps.pull-request-url.outputs.output }}"
@@ -263,6 +266,16 @@ jobs:
             } catch(e) {
               console.log(e)
             }
+      - name: Update old variables in pull requests to new variables.
+        shell: bash
+        env:
+          GH_TOKEN: ${{ env.GITHUB_ACCESS_TOKEN }}
+          PULL_REQUEST_REPO: ${{ env.PULL_REQUEST_REPO }}
+          PULL_REQUEST_NUMBER: ${{ env.PULL_REQUEST_NUMBER }}
+        run: |
+          pip install pygithub==1.58.1
+          python replace_variables_in_pull_requests.py
+
   cleanup:
     runs-on: ubuntu-latest
     needs: [execute-actions-importer, audit, migrate, dry-run]
